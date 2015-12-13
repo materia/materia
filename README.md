@@ -18,6 +18,7 @@ Take a look at the `example/` directory to see how it's used.
 git clone git@github.com:materia/materia.git
 cd materia
 composer install
+bower install
 php -S 0.0.0.0:8080 example/example1.php
 ```
 

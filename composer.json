@@ -1,0 +1,26 @@
+{
+
+	"name" : "materia/materia",
+	"description" : "Materia",
+	"homepage" : "https://github.com/materia/materia",
+	"keywords" : [
+		"materia"
+	],
+	"type" : "library",
+	"authors" : [{
+			"name" : "LinkORB",
+			"email" : "engineering@linkorb.com",
+			"role" : "Development"
+		}
+	],
+	"require" : {
+		"zordius/lightncandy" : "~0.0"
+	},
+	"require-dev" : {
+	},
+	"autoload" : {
+		"psr-4" : {
+			"Materia\\" : "src/"
+		}
+	}
+}

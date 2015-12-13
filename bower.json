@@ -1,0 +1,12 @@
+{
+  "name": "Materia",
+  "version": "1.0.0",
+  "dependencies": {
+    "bootstrap": "~3.3.0",
+    "bootswatch-dist": "3.3.0-lumen",
+    "eonasdan-bootstrap-datetimepicker": "~4.17.37",
+    "font-awesome": "~4.3.0",
+    "jquery": ">= 1.9.1",
+    "moment": "moment/moment#~2.10.6"
+  }
+}

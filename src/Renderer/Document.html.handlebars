@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        {{#scripts}}
+        <script src="{{ .getUrl }}"></script>
+        {{/scripts}}
+        {{#styles}}
+        <link rel="stylesheet" href="{{ .getUrl }}" />
+        {{/styles}}
+    </head>
+    <body>
+        ##children##
+    </body>
+</html>
+        

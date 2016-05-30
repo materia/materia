@@ -17,7 +17,6 @@ abstract class BaseWidget
         return $this;
     }
     
-    
     public function getWidgetById($id)
     {
         if (!method_exists($this, 'getWidgets')) {
@@ -34,5 +33,4 @@ abstract class BaseWidget
         }
         return null;
     }
-    
 }

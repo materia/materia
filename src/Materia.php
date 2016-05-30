@@ -1,50 +1,85 @@
 <?php
+
 namespace Materia;
 
-use RuntimeException;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGenerator;
 use LightnCandy\LightnCandy;
+use RuntimeException;
 
 class Materia
 {
-    public function render($object, $data = array())
+    protected $urlGenerator;
+    protected $themePath;
+    
+    public function __construct(UrlGenerator $urlGenerator)
     {
-        $html = '';
-        $renderer = $this->getRendererByType($object);
-        $html .= $renderer->render($object, $data);
-        $o = '';
+        $this->urlGenerator = $urlGenerator;
         
-        if (is_a($object, 'Materia\\Widget\\Container')) {
-            foreach ($object->getWidgets() as $widget) {
-                $o .=  $this->render($widget, $data);
-            }
+        // Make themePath configurable
+        $this->themePath = __DIR__ . '/../themes/bootstrap3';
+    }
+    
+    protected $twig;
+    
+    public function setTwig($twig)
+    {
+        $this->twig = $twig;
+    }
+    
+    public function renderWidget($widget)
+    {
+        $filename = get_class($widget) . '.hbs';
+        $filename = str_replace('\\', '/', $filename);
+    
+        $filename = $this->themePath . '/' . $filename;
+        if (!file_exists($filename)) {
+            throw new RuntimeException("Can't find widget template: " . $filename);
         }
-        $html = str_replace('##children##', $o, $html);
-        return $html;
-    }
-    
-    private $renderers = array();
-    
-    public function register($type, $renderer)
-    {
-        $this->renderers[$type] = $renderer;
-    }
-    
-    public function getRendererByType($object)
-    {
-        foreach ($this->renderers as $name => $renderer) {
-            if (is_a($object, $name)) {
-                return $renderer;
-            }
-        }
-        throw new RuntimeException("No renderer registered for class " . get_class($object));
-    }
-    
-    public function renderTemplate($filename, $data = array())
-    {
         $template = file_get_contents($filename);
-        $phpStr = LightnCandy::compile($template, array('flags' => LightnCandy::FLAG_INSTANCE));
+        $helper = new Helper();
+        $phpStr = LightnCandy::compile(
+            $template,
+            [
+                'flags' => LightnCandy::FLAG_INSTANCE|LightnCandy::FLAG_METHOD,
+                'helpers' => [
+                    'route' => 'Materia\Helper::route'
+                ]
+            ]
+        );
+    
         $renderer = LightnCandy::prepare($phpStr);
 
+        $data = ['widget' => $widget];
+        $data['urlGenerator'] = $this->urlGenerator;
+        $data['materia'] = $this;
         return $renderer($data);
+    }
+    
+    public function getTwigResponse(View $view, $templateName)
+    {
+        if (!$this->twig) {
+            throw new RuntimeException("Can't call getTwigResponse without calling setTwig()");
+        }
+
+        $data = $view->getData();
+        
+        $html = '';
+        foreach ($view->getActions() as $action) {
+            $html .= $this->renderWidget($action);
+        }
+        $data['materia_actions'] = $html;
+        $data['materia_view'] = $view;
+
+
+        $html = '';
+        foreach ($view->getBreadcrumbs() as $action) {
+            $html .= $this->renderWidget($action);
+        }
+        $data['materia_breadcrumbs'] = $html;
+        
+        $html = $this->twig->render($templateName, $data);
+        $response = new Response($html);
+        return $response;
     }
 }

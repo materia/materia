@@ -2,8 +2,10 @@
 
 namespace Materia\Widget;
 
-class Document extends Container
+class Document
 {
+    use ContainerTrait;
+    
     protected $scripts = array();
     public function addScript(Script $script)
     {
